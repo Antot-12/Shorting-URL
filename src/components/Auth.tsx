@@ -8,6 +8,7 @@ export default function Auth() {
     const [isLogin, setIsLogin] = useState(true);
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [animated, setAnimated] = useState(false);
 
     const handleSubmit = async () => {
         setLoading(true);
@@ -27,7 +28,9 @@ export default function Auth() {
                 toast.success('Logged in successfully.');
             } else {
                 await supabaseService.register(email, password);
-                toast.success('Registration successful. Check your email to confirm.');
+                toast.success('Confirmation email has been sent. Please check your inbox.');
+                setAnimated(true);
+                setTimeout(() => setAnimated(false), 3000);
             }
         } catch (err: unknown) {
             if (err instanceof Error) {
@@ -41,7 +44,7 @@ export default function Auth() {
     };
 
     return (
-        <div className="bg-gray-900 p-6 rounded max-w-sm w-full text-white space-y-4 shadow-lg">
+        <div className={`bg-gray-900 p-6 rounded max-w-sm w-full text-white space-y-4 shadow-lg transition-transform duration-500 ${animated ? 'scale-105 ring-2 ring-neon' : ''}`}>
             <h2 className="text-2xl font-bold text-center text-neon">
                 {isLogin ? 'Login' : 'Register'}
             </h2>
@@ -79,9 +82,7 @@ export default function Auth() {
             </button>
 
             <p
-                onClick={() => {
-                    setIsLogin(!isLogin);
-                }}
+                onClick={() => setIsLogin(!isLogin)}
                 className="text-sm text-center text-neon cursor-pointer hover:underline"
             >
                 {isLogin ? "Don't have an account? Sign up" : 'Already have an account? Log in'}
