@@ -31,7 +31,7 @@ export default function LinkList({ reload }: LinkListProps) {
         try {
             const result = await supabaseService.getMyLinks();
             setLinks(result);
-        } catch (err) {
+        } catch {
             toast.error('Failed to load links');
         } finally {
             setLoading(false);
@@ -45,7 +45,7 @@ export default function LinkList({ reload }: LinkListProps) {
     };
 
     const handleCopy = (code: string) => {
-        const fullLink = `${window.location.origin}/r/${code}`;
+        const fullLink = `https://shorting-url-xi.vercel.app/r/${code}`;
         navigator.clipboard.writeText(fullLink);
         toast.success('Copied to clipboard');
     };
@@ -60,7 +60,7 @@ export default function LinkList({ reload }: LinkListProps) {
             toast.success('Short code updated');
             setEditingId(null);
             fetchLinks();
-        } catch (err) {
+        } catch {
             toast.error('Failed to update short code');
         }
     };
@@ -117,7 +117,7 @@ export default function LinkList({ reload }: LinkListProps) {
             </div>
 
             {filteredLinks.map((link) => {
-                const shortUrl = `${window.location.origin}/r/${link.short_code}`;
+                const shortUrl = `https://shorting-url-xi.vercel.app/r/${link.short_code}`;
                 const isEditing = editingId === link.id;
 
                 return (
@@ -150,12 +150,21 @@ export default function LinkList({ reload }: LinkListProps) {
                             ) : (
                                 <>
                                     <p className="text-neon text-sm break-all">
-                                        <a href={shortUrl} target="_blank" rel="noopener noreferrer" className="hover:underline">
+                                        <a
+                                            href={shortUrl}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="hover:underline"
+                                        >
                                             {shortUrl}
                                         </a>
                                     </p>
-                                    <p className="text-xs text-gray-400 mt-1 break-all">{link.original_url}</p>
-                                    <p className="text-xs text-gray-400 mt-1">Clicks: {link.click_count}</p>
+                                    <p className="text-xs text-gray-400 mt-1 break-all">
+                                        {link.original_url}
+                                    </p>
+                                    <p className="text-xs text-gray-400 mt-1">
+                                        Clicks: {link.click_count}
+                                    </p>
                                 </>
                             )}
                         </div>
@@ -185,7 +194,11 @@ export default function LinkList({ reload }: LinkListProps) {
                                         Edit
                                     </button>
                                     <button
-                                        onClick={() => setQrVisibleId((prev) => (prev === link.id ? null : link.id))}
+                                        onClick={() =>
+                                            setQrVisibleId((prev) =>
+                                                prev === link.id ? null : link.id
+                                            )
+                                        }
                                         className="text-sm text-blue-400 hover:underline"
                                     >
                                         {qrVisibleId === link.id ? 'Hide QR' : 'Show QR'}

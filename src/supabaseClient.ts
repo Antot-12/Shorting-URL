@@ -145,15 +145,23 @@ export class SupabaseService {
             .from('links')
             .select('id, original_url')
             .eq('short_code', shortCode)
-            .maybeSingle();
+            .single();
 
-        if (error || !data) throw new Error('Link not found');
+        if (error || !data) {
+            console.error('getOriginalUrl error:', error?.message);
+            throw new Error('Link not found');
+        }
 
-        await this.trackClick(data.id);
-        await this.client.rpc('increment_click_count', { link_id_input: data.id });
+        try {
+            await this.trackClick(data.id);
+            await this.client.rpc('increment_click_count', { link_id_input: data.id });
+        } catch (e) {
+            console.warn('Click tracking failed:', e);
+        }
 
         return data.original_url;
     }
+
 
     async trackClick(linkId: string) {
         const { error } = await this.client.from('clicks').insert([

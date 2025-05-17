@@ -15,12 +15,16 @@ export default function Redirect() {
                 return;
             }
 
+            console.log('Redirecting with code:', code);
+
             try {
                 const url = await supabaseService.getOriginalUrl(code);
+                console.log('Redirecting to:', url);
                 setTimeout(() => {
                     window.location.href = url;
                 }, 300);
-            } catch {
+            } catch (err) {
+                console.error('Redirect failed:', err);
                 setError('Redirect failed or link not found');
             } finally {
                 setLoading(false);
