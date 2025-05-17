@@ -27,7 +27,7 @@ export default function Auth() {
                 toast.success('Logged in successfully.');
             } else {
                 await supabaseService.register(email, password);
-                toast.success('Registration successful. Check your email.');
+                toast.success('Registration successful. Check your email to confirm.');
             }
         } catch (err: unknown) {
             if (err instanceof Error) {

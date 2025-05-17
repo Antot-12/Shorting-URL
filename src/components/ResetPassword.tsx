@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabaseService } from '../supabaseClient';
 import type { User } from '@supabase/supabase-js';
+import toast from 'react-hot-toast';
 
 export default function ResetPassword() {
     const navigate = useNavigate();
@@ -37,6 +38,7 @@ export default function ResetPassword() {
             setError(error.message);
         } else {
             setStatus('Password reset email sent.');
+            toast.success('Password reset email has been sent to your email address.');
         }
     };
 
@@ -58,8 +60,6 @@ export default function ResetPassword() {
         } else {
             setStatus('Password updated successfully. Redirecting...');
             setNewPassword('');
-
-            // Redirect to homepage after short delay
             setTimeout(() => {
                 navigate('/');
             }, 1500);
