@@ -7,7 +7,7 @@ A simple, fast, and customizable URL shortener
 ### 🚀 Demo
 
 > 🟢 Live version (on Vercel):
-> [https://shorting-url-yourname.vercel.app](https://shorting-url-yourname.vercel.app)
+> [https://shorting-url-xi.vercel.app/](https://shorting-url-xi.vercel.app/)
 
 ---
 
