@@ -12,13 +12,22 @@ export class SupabaseService {
     }
 
     async register(email: string, password: string) {
-        const { data, error } = await this.client.auth.signUp({ email, password });
+        const { data, error } = await this.client.auth.signUp({
+            email,
+            password,
+            options: {
+                emailRedirectTo: `${window.location.origin}/`
+            }
+        });
         if (error) throw new Error(error.message);
         return data;
     }
 
     async login(email: string, password: string) {
-        const { data, error } = await this.client.auth.signInWithPassword({ email, password });
+        const { data, error } = await this.client.auth.signInWithPassword({
+            email,
+            password
+        });
         if (error) throw new Error(error.message);
         return data;
     }
@@ -50,8 +59,8 @@ export class SupabaseService {
                 {
                     user_id: user.id,
                     original_url: originalUrl,
-                    short_code: customCode,
-                },
+                    short_code: customCode
+                }
             ]);
 
             if (error) throw new Error(error.message);
@@ -85,8 +94,8 @@ export class SupabaseService {
             {
                 user_id: user.id,
                 original_url: originalUrl,
-                short_code: shortCode,
-            },
+                short_code: shortCode
+            }
         ]);
 
         if (error) throw new Error(error.message);
@@ -151,8 +160,8 @@ export class SupabaseService {
             {
                 link_id: linkId,
                 user_agent: navigator.userAgent,
-                referrer: document.referrer,
-            },
+                referrer: document.referrer
+            }
         ]);
         if (error) console.error('Track click error:', error.message);
     }
