@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply bg-dark text-white font-mono antialiased min-h-screen;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+textarea,
+input {
+  @apply bg-gray-900 text-white border border-neon rounded p-3 w-full focus:outline-none focus:ring-2 focus:ring-neon transition text-sm sm:text-base;
+}
+
+button {
+  @apply transition duration-150 ease-in-out;
+  touch-action: manipulation;
+}
