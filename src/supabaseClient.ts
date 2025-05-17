@@ -163,6 +163,7 @@ export class SupabaseService {
     }
 
 
+
     async trackClick(linkId: string) {
         const { error } = await this.client.from('clicks').insert([
             {
