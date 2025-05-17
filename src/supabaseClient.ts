@@ -2,8 +2,7 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { nanoid } from 'nanoid';
 
 const SUPABASE_URL = 'https://qchcpenckaojjggkjgcb.supabase.co';
-const SUPABASE_ANON_KEY =
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFjaGNwZW5ja2FvampnZ2tqZ2NiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc0OTA4OTMsImV4cCI6MjA2MzA2Njg5M30.8wHQQzGPdytYJ2oMAOWXRSCnRBE9fPd-f9gSHM13lK8';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFjaGNwZW5ja2FvampnZ2tqZ2NiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc0OTA4OTMsImV4cCI6MjA2MzA2Njg5M30.8wHQQzGPdytYJ2oMAOWXRSCnRBE9fPd-f9gSHM13lK8';
 
 export class SupabaseService {
     private client: SupabaseClient;
@@ -45,9 +44,7 @@ export class SupabaseService {
                 .eq('short_code', customCode)
                 .maybeSingle();
 
-            if (existing) {
-                throw new Error('This short code is already taken. Please choose another.');
-            }
+            if (existing) throw new Error('This short code is already taken.');
 
             const { error } = await this.client.from('links').insert([
                 {
@@ -59,44 +56,41 @@ export class SupabaseService {
 
             if (error) throw new Error(error.message);
             return customCode;
-        } else {
-            const existing = await this.client
-                .from('links')
-                .select('short_code')
-                .eq('user_id', user.id)
-                .eq('original_url', originalUrl)
-                .maybeSingle();
-
-            if (existing.data) {
-                return existing.data.short_code;
-            }
-
-            let shortCode = nanoid(6);
-            let attempt = 0;
-
-            while (attempt < 5) {
-                const { data: duplicate } = await this.client
-                    .from('links')
-                    .select('id')
-                    .eq('short_code', shortCode)
-                    .maybeSingle();
-
-                if (!duplicate) break;
-                shortCode = nanoid(6);
-                attempt++;
-            }
-
-            const { error } = await this.client.from('links').insert([
-                {
-                    user_id: user.id,
-                    original_url: originalUrl,
-                    short_code: shortCode,
-                },
-            ]);
-
-            if (error) throw new Error(error.message);
-            return shortCode;
         }
+
+        const existing = await this.client
+            .from('links')
+            .select('short_code')
+            .eq('user_id', user.id)
+            .eq('original_url', originalUrl)
+            .maybeSingle();
+
+        if (existing.data) return existing.data.short_code;
+
+        let shortCode = nanoid(6);
+        let attempt = 0;
+
+        while (attempt < 5) {
+            const { data: duplicate } = await this.client
+                .from('links')
+                .select('id')
+                .eq('short_code', shortCode)
+                .maybeSingle();
+            if (!duplicate) break;
+            shortCode = nanoid(6);
+            attempt++;
+        }
+
+        const { error } = await this.client.from('links').insert([
+            {
+                user_id: user.id,
+                original_url: originalUrl,
+                short_code: shortCode,
+            },
+        ]);
+
+        if (error) throw new Error(error.message);
+        return shortCode;
     }
 
     async getMyLinks() {
@@ -127,9 +121,7 @@ export class SupabaseService {
             .eq('short_code', newCode)
             .maybeSingle();
 
-        if (existing) {
-            throw new Error('This short code is already taken.');
-        }
+        if (existing) throw new Error('This short code is already taken.');
 
         const { error } = await this.client
             .from('links')
@@ -142,14 +134,13 @@ export class SupabaseService {
     async getOriginalUrl(shortCode: string) {
         const { data, error } = await this.client
             .from('links')
-            .select('*')
+            .select('id, original_url')
             .eq('short_code', shortCode)
-            .single();
+            .maybeSingle();
+
         if (error || !data) throw new Error('Link not found');
 
         await this.trackClick(data.id);
-
-        // Optional: update click_count in links table
         await this.client.rpc('increment_click_count', { link_id_input: data.id });
 
         return data.original_url;
@@ -163,7 +154,7 @@ export class SupabaseService {
                 referrer: document.referrer,
             },
         ]);
-        if (error) throw new Error('Failed to track click');
+        if (error) console.error('Track click error:', error.message);
     }
 
     async getLinkClicks(linkId: string) {

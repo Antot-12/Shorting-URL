@@ -1,16 +1,38 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { supabaseService } from '../supabaseClient';
 
 export default function Redirect() {
     const { code } = useParams();
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        (async () => {
-            const url = await supabaseService.getOriginalUrl(code as string);
-            window.location.href = url;
-        })();
+        const handleRedirect = async () => {
+            if (!code) {
+                setError('Invalid short code');
+                setLoading(false);
+                return;
+            }
+
+            try {
+                const url = await supabaseService.getOriginalUrl(code);
+                setTimeout(() => {
+                    window.location.href = url;
+                }, 300);
+            } catch {
+                setError('Redirect failed or link not found');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        handleRedirect();
     }, [code]);
 
-    return <p className="text-white">Переадресація...</p>;
+    return (
+        <div className="min-h-screen flex items-center justify-center bg-black text-white text-lg">
+            {loading ? 'Redirecting...' : error}
+        </div>
+    );
 }
