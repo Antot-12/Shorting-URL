@@ -9,9 +9,11 @@ export default function Auth() {
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const [animated, setAnimated] = useState(false);
+    const [emailSent, setEmailSent] = useState(false);
 
     const handleSubmit = async () => {
         setLoading(true);
+        setEmailSent(false);
         try {
             if (!email.includes('@')) {
                 toast.error('Invalid email format.');
@@ -29,6 +31,7 @@ export default function Auth() {
             } else {
                 await supabaseService.register(email, password);
                 toast.success('Confirmation email has been sent. Please check your inbox.');
+                setEmailSent(true);
                 setAnimated(true);
                 setTimeout(() => setAnimated(false), 3000);
             }
@@ -81,8 +84,17 @@ export default function Auth() {
                 {isLogin ? 'Log In' : 'Sign Up'}
             </button>
 
+            {emailSent && (
+                <p className="text-green-400 text-sm text-center">
+                    A confirmation email has been sent to <span className="underline">{email}</span>. Please check your inbox to verify your account.
+                </p>
+            )}
+
             <p
-                onClick={() => setIsLogin(!isLogin)}
+                onClick={() => {
+                    setIsLogin(!isLogin);
+                    setEmailSent(false);
+                }}
                 className="text-sm text-center text-neon cursor-pointer hover:underline"
             >
                 {isLogin ? "Don't have an account? Sign up" : 'Already have an account? Log in'}
